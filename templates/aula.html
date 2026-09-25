@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block titulo %}{{ clase.curso }}{% endblock %}
+{% block enlaces %}<a href="{{ url_for('salir') }}">Cambiar de estudiante</a>{% endblock %}
+{% block contenido %}
+<section class="hoja">
+  <h2>{{ estudiante.nombre }}</h2>
+  <p class="ayuda">Mantén esta ventana abierta durante toda la clase. Si sales o pierdes conexión
+    tienes 10 minutos para volver; la cuarta salida cuenta como retiro.</p>
+  <div id="sello" class="sello {{ estado }}">{{ estado }}</div>
+  <dl class="datos">
+    <dt>Código</dt><dd>{{ estudiante.codigo }}</dd>
+    <dt>Curso</dt><dd>{{ clase.curso }}</dd>
+    <dt>Hora de ingreso</dt><dd>{{ reg.hora_ingreso[11:] }}</dd>
+    <dt>Desconexiones</dt><dd id="desconexiones">{{ reg.desconexiones }} de 3 permitidas</dd>
+  </dl>
+  <div class="conexion" aria-live="polite"><span id="punto" class="punto"></span><span id="texto">Conectado a la clase</span></div>
+</section>
+<script src="{{ url_for('static', filename='aula.js') }}"></script>
+{% endblock %}

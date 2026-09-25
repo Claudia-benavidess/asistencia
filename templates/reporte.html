@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block titulo %}Reporte {{ clase.curso }}{% endblock %}
+{% block enlaces %}<a href="{{ url_for('docente') }}">Volver al panel</a>{% endblock %}
+{% block contenido %}
+<h2>Reporte de asistencia</h2>
+<p class="ayuda">{{ clase.curso }}, {{ clase.hora_inicio[:10] }}, de {{ clase.hora_inicio[11:] }} a {{ (clase.hora_fin or "en curso")[11:] }}</p>
+<div class="resumen">
+  {% for estado, total in resumen.items() %}<div class="{{ estado }}"><strong>{{ total }}</strong>{{ estado }}</div>{% endfor %}
+</div>
+<div class="tabla hoja">
+  <table>
+    <thead><tr><th>Código</th><th>Estudiante</th><th>Ingreso</th><th>Desconexiones</th><th>Salidas</th><th>Reingresos</th><th>Estado final</th></tr></thead>
+    <tbody>
+    {% for f in filas %}
+      <tr>
+        <td>{{ f.codigo }}</td><td>{{ f.nombre }}</td><td>{{ f.hora_ingreso or "—" }}</td>
+        <td>{{ f.desconexiones }}</td><td>{{ f.salidas or "—" }}</td><td>{{ f.reingresos or "—" }}</td>
+        <td class="estado {{ f.estado_final }}">{{ f.estado_final }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+<div class="acciones">
+  <a class="boton" href="{{ url_for('reporte_excel', clase_id=clase.id) }}">Descargar en Excel</a>
+  <a class="boton secundario" href="{{ url_for('docente') }}">Continuar sin descargar</a>
+</div>
+{% endblock %}

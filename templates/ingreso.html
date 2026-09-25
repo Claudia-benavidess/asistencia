@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block enlaces %}<a href="{{ url_for('docente') }}">Soy docente</a>{% endblock %}
+{% block contenido %}
+<section class="hoja estrecho">
+  {% if clase %}
+    <h2>{{ clase.curso }}</h2>
+    <p class="ayuda">Escribe tu código institucional para registrar tu ingreso.</p>
+  {% else %}
+    <h2>La clase aún no inicia</h2>
+    <p class="ayuda">Cuando el docente inicie la clase podrás registrar tu ingreso aquí.</p>
+  {% endif %}
+  {% if mensaje %}<div class="mensaje" role="alert">{{ mensaje }}</div>{% endif %}
+  <form method="post">
+    <label for="codigo">Código institucional</label>
+    <input class="codigo" id="codigo" name="codigo" required autocomplete="off" placeholder="U20231234">
+    <button type="submit">Registrar ingreso</button>
+  </form>
+</section>
+{% endblock %}

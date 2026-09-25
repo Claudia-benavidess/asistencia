@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block enlaces %}<a href="{{ url_for('salir') }}">Cerrar sesión</a>{% endblock %}
+{% block contenido %}
+{% if not clase %}
+<section class="hoja estrecho">
+  <h2>Iniciar una clase</h2>
+  <p class="ayuda">Al iniciar, los estudiantes podrán registrar su ingreso con su código.</p>
+  <form method="post" action="{{ url_for('iniciar_clase') }}">
+    <label for="curso">Curso</label>
+    <input id="curso" name="curso" placeholder="Fundamentos de programación">
+    <label for="tolerancia">Minutos de tolerancia para marcar PRESENTE</label>
+    <input id="tolerancia" name="tolerancia" type="number" min="0" value="10">
+    <button type="submit">Iniciar clase</button>
+  </form>
+  {% if ultima %}<p><a class="boton secundario" href="{{ url_for('reporte', clase_id=ultima.id) }}">Ver el último reporte</a></p>{% endif %}
+</section>
+{% else %}
+<section>
+  <h2>{{ clase.curso }} en curso</h2>
+  <p class="ayuda">Iniciada a las {{ clase.hora_inicio[11:] }}. La lista se actualiza cada 10 segundos.</p>
+  <div class="tabla hoja">
+    <table>
+      <thead><tr><th>Estudiante</th><th>Ingreso</th><th>Desconexiones</th><th>Ahora</th><th>Estado</th></tr></thead>
+      <tbody>
+      {% for f in filas %}
+        <tr>
+          <td>{{ f.nombre }}<br><small>{{ f.codigo }}</small></td>
+          <td>{{ f.hora_ingreso or "—" }}</td>
+          <td>{{ f.desconexiones }}</td>
+          <td>{% if f.conectado %}Conectado{% elif f.hora_ingreso %}Fuera de la clase{% else %}Sin ingresar{% endif %}</td>
+          <td class="estado {{ f.estado_final if f.hora_ingreso else '' }}">{{ f.estado_final if f.hora_ingreso else "Esperando" }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <form method="post" action="{{ url_for('finalizar_clase') }}"
+        onsubmit="return confirm('¿Finalizar la clase? Quienes no ingresaron quedarán con FALTA.')">
+    <button class="peligro" type="submit">Finalizar clase y generar reporte</button>
+  </form>
+</section>
+<script>setTimeout(() => location.reload(), 10000);</script>
+{% endif %}
+{% endblock %}

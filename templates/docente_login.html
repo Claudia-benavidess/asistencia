@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block enlaces %}<a href="{{ url_for('ingreso') }}">Ingreso de estudiantes</a>{% endblock %}
+{% block contenido %}
+<section class="hoja estrecho">
+  <h2>Panel del docente</h2>
+  {% if mensaje %}<div class="mensaje" role="alert">{{ mensaje }}</div>{% endif %}
+  <form method="post">
+    <label for="clave">Clave del docente</label>
+    <input id="clave" name="clave" type="password" required>
+    <button type="submit">Entrar al panel</button>
+  </form>
+</section>
+{% endblock %}
