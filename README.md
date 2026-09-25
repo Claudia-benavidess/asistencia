@@ -1,9 +1,20 @@
 # Sistema de asistencia para clases virtuales (UPC)
 
-Mini aula virtual centrada en asistencia. El docente inicia la clase, el estudiante
-registra su ingreso con su código y la página controla su permanencia.
+Mini aula virtual centrada en el control de asistencia. El docente inicia la clase, el estudiante
+registra su ingreso con su código y la página controla su permanencia en la clase.
 
 ## Cómo ejecutarlo
+### 1. Abrir el proyecto en GitHub Codespaces
+
+1. Presiona **`Code`**.
+2. Dirígete a la sección **`Codespaces`**.
+3. Selecciona el símbolo **`+`** para crear un nuevo Codespace.
+4. **Aviso:** serás redirigido a una página virtual de **Visual Studio Code**.
+5. Espera a que el entorno termine de cargar completamente.
+
+### 2. Instalar las dependencias
+
+Una vez que el entorno haya cargado, abre la **Terminal** y ejecuta primero:
 ```bash
 pip install -r requirements.txt
 python app.py
