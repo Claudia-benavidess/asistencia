@@ -19,6 +19,9 @@ Una vez que el entorno haya cargado, abre la **Terminal** y ejecuta primero:
 pip install -r requirements.txt
 python app.py
 ```
+
+### 3. Acceder al Sistema
+
 - Estudiantes: http://127.0.0.1:5000
 - Docente: http://127.0.0.1:5000/docente (clave de prueba: `docente123`)
 - Pruebas de las reglas: `pytest`
