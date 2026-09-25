@@ -6,7 +6,7 @@ registra su ingreso con su código y la página controla su permanencia en la cl
 ## Cómo ejecutarlo
 ### 1. Abrir el proyecto en GitHub Codespaces
 
-1. Presiona **`Code`**.
+1. Presiona **`<>Code`**.
 2. Dirígete a la sección **`Codespaces`**.
 3. Selecciona el símbolo **`+`** para crear un nuevo Codespace.
 4. **Aviso:** serás redirigido a una página virtual de **Visual Studio Code**.
