@@ -7,6 +7,7 @@ import io
 import os
 import sqlite3
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from flask import (Flask, g, jsonify, redirect, render_template, request,
                    send_file, session, url_for)
@@ -21,6 +22,12 @@ app.secret_key = os.environ.get("SECRET_KEY", "cambia-esta-clave")
 BD = os.environ.get("BD_ASISTENCIA", "asistencia.db")
 CLAVE_DOCENTE = os.environ.get("CLAVE_DOCENTE", "docente123")
 SEGUNDOS_SIN_SENAL = int(os.environ.get("SEGUNDOS_SIN_SENAL", "15"))
+ZONA_HORARIA = ZoneInfo("America/Lima")
+
+
+def hora_peru():
+    """Hora actual de Perú, aunque el servidor esté en otro país (Codespaces, AWS)."""
+    return datetime.now(ZONA_HORARIA).replace(tzinfo=None)
 
 
 # ---------------------------------------------------------------- base de datos
@@ -84,7 +91,7 @@ def guardar_registro(clase_id, reg, eventos):
 
 def revisar_clase(clase_id):
     """Recorre a todos los conectados para detectar pérdidas de conexión."""
-    ahora = datetime.now()
+    ahora = hora_peru()
     filas = bd().execute("SELECT * FROM registros WHERE clase_id=? AND retiro=0", (clase_id,))
     for fila in filas.fetchall():
         reg, eventos = dict(fila), []
@@ -105,7 +112,7 @@ def ingreso():
         elif not estudiante:
             mensaje = "Código inválido. Revisa tu código institucional e inténtalo de nuevo."
         else:
-            ahora = datetime.now()
+            ahora = hora_peru()
             reg = leer_registro(clase["id"], codigo)
             eventos = []
             if reg is None:        # primer ingreso -> PRESENTE o TARDANZA
@@ -146,7 +153,7 @@ def senal():
     if reg is None:
         return jsonify(clase_activa=False)
     datos = request.get_json(silent=True) or {}
-    ahora, eventos = datetime.now(), []
+    ahora, eventos = hora_peru(), []
     logica.revisar_tiempos(reg, ahora, SEGUNDOS_SIN_SENAL, eventos)
     if datos.get("visible", True):
         logica.registrar_reingreso(reg, ahora, eventos)
@@ -185,7 +192,7 @@ def iniciar_clase():
     if not clase_activa():
         bd().execute("INSERT INTO clases (curso, hora_inicio, tolerancia_min) VALUES (?,?,?)",
                      (request.form.get("curso") or "Clase virtual",
-                      datetime.now().isoformat(timespec="seconds"),
+                      hora_peru().isoformat(timespec="seconds"),
                       int(request.form.get("tolerancia") or 10)))
         bd().commit()
     return redirect(url_for("docente"))
@@ -199,7 +206,7 @@ def finalizar_clase():
     if clase:
         revisar_clase(clase["id"])
         bd().execute("UPDATE clases SET activa=0, hora_fin=? WHERE id=?",
-                     (datetime.now().isoformat(timespec="seconds"), clase["id"]))
+                     (hora_peru().isoformat(timespec="seconds"), clase["id"]))
         bd().commit()
         return redirect(url_for("reporte", clase_id=clase["id"]))
     return redirect(url_for("docente"))
