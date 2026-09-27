@@ -1,8 +1,3 @@
-"""
-Reglas de asistencia del proyecto.
-Aquí NO hay web ni base de datos: solo las decisiones del diagrama de flujo.
-Cada registro es un diccionario con los datos de un estudiante en una clase.
-"""
 from datetime import datetime, timedelta
 
 PRESENTE = "PRESENTE"
