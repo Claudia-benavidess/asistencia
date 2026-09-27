@@ -1,4 +1,3 @@
-"""Pruebas de las reglas. Ejecutar con:  pytest"""
 from datetime import datetime, timedelta
 import logica as L
 
