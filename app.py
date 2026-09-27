@@ -1,7 +1,3 @@
-"""
-Sistema de asistencia para clases virtuales (proyecto UPC).
-Ejecutar:  python app.py   y abrir http://127.0.0.1:5000
-"""
 import csv
 import io
 import os
