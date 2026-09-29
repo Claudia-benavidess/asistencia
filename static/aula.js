@@ -16,7 +16,7 @@ function enviarSenal() {
         }
 
         document.getElementById("desconexiones").textContent =
-            data.desconexiones + " de 4 permitidas";
+            data.desconexiones + " de 3 permitidas";
 
         const sello = document.getElementById("sello");
         sello.textContent = data.estado;
