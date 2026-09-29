@@ -29,7 +29,8 @@ def nuevo_registro(codigo, hora_ingreso, hora_inicio, tolerancia_min):
         "ultima_senal": hora_ingreso.isoformat(timespec="seconds"),
         "retiro": 0,                  # 1 = ya tiene RETIRO-FALTA
     }
-
+def registrar_senal(reg, hora):
+    reg["ultima_senal"] = hora.isoformat(timespec="seconds")
 
 def registrar_salida(reg, hora, eventos):
     """El estudiante se desconectó o salió de la ventana de la clase."""
@@ -58,8 +59,10 @@ def revisar_tiempos(reg, ahora, segundos_sin_senal, eventos):
     if reg["retiro"]:
         return
     ultima = a_fecha(reg["ultima_senal"])
+    
     if not reg["desconectado_desde"] and ahora - ultima > timedelta(seconds=segundos_sin_senal):
         registrar_salida(reg, ultima, eventos)   # se perdió la conexión desde la última señal
+        
     if reg["desconectado_desde"] and not reg["retiro"]:
         if ahora - a_fecha(reg["desconectado_desde"]) > timedelta(minutes=MINUTOS_REINGRESO):
             reg["retiro"] = 1
