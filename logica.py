@@ -48,10 +48,11 @@ def registrar_reingreso(reg, hora, eventos):
     if reg["retiro"] or not reg["desconectado_desde"]:
         return
     fuera = hora - a_fecha(reg["desconectado_desde"])
-    reg["desconectado_desde"] = None
+    
     eventos.append(("reingreso", hora))
     if fuera > timedelta(minutes=MINUTOS_REINGRESO):
         reg["retiro"] = 1
+    reg["desconectado_desde"] = None
 
 
 def revisar_tiempos(reg, ahora, segundos_sin_senal, eventos):
