@@ -15,15 +15,9 @@ import logica
 
 app = Flask(__name__)
 
-app.secret_key = os.environ.get(
-    "SECRET_KEY",
-    "cambia-esta-clave"
-)
+app.secret_key = os.environ.get("SECRET_KEY","cambia-esta-clave")
 
-BD = os.environ.get(
-    "BD_ASISTENCIA",
-    "asistencia.db"
-)
+BD = os.environ.get("BD_ASISTENCIA","asistencia.db")
 
 CLAVE_DOCENTE = os.environ.get(
     "CLAVE_DOCENTE",
@@ -40,9 +34,7 @@ SEGUNDOS_SIN_SENAL = int(
 ZONA_HORARIA = ZoneInfo("America/Lima")
 
 
-# ============================================================
 # HORA
-# ============================================================
 
 def hora_peru():
     """Hora actual de Perú."""
@@ -51,9 +43,7 @@ def hora_peru():
     ).replace(tzinfo=None)
 
 
-# ============================================================
 # BASE DE DATOS
-# ============================================================
 
 def bd():
     """Obtiene una conexión SQLite para la petición actual."""
@@ -121,9 +111,7 @@ def crear_tablas():
         """
     )
 
-    # --------------------------------------------------------
     # Cargar estudiantes.csv
-    # --------------------------------------------------------
 
     if os.path.exists("estudiantes.csv"):
 
@@ -149,10 +137,7 @@ def crear_tablas():
 
                 if codigo:
                     filas.append(
-                        (
-                            codigo,
-                            nombre
-                        )
+                        (codigo,nombre)
                     )
 
             con.executemany(
@@ -168,9 +153,7 @@ def crear_tablas():
     con.close()
 
 
-# ============================================================
 # CLASE
-# ============================================================
 
 def clase_activa():
     return bd().execute(
@@ -184,9 +167,7 @@ def clase_activa():
     ).fetchone()
 
 
-# ============================================================
 # REGISTROS
-# ============================================================
 
 def leer_registro(clase_id, codigo):
     """Busca el registro de un alumno."""
@@ -217,28 +198,10 @@ def guardar_registro(
     bd().execute(
         """
         INSERT OR REPLACE INTO registros
-        (
-            clase_id,
-            codigo,
-            hora_ingreso,
-            estado_ingreso,
-            desconexiones,
-            desconectado_desde,
-            ultima_senal,
-            retiro
-        )
+        (clase_id,codigo,hora_ingreso,estado_ingreso,desconexiones,desconectado_desde,ultima_senal,retiro)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """,
-        (
-            clase_id,
-            reg["codigo"],
-            reg["hora_ingreso"],
-            reg["estado_ingreso"],
-            reg["desconexiones"],
-            reg["desconectado_desde"],
-            reg["ultima_senal"],
-            reg["retiro"]
-        )
+        (clase_id,reg["codigo"],reg["hora_ingreso"],reg["estado_ingreso"],reg["desconexiones"],reg["desconectado_desde"],reg["ultima_senal"],reg["retiro"])
     )
 
     for tipo, hora in eventos:
@@ -246,30 +209,16 @@ def guardar_registro(
         bd().execute(
             """
             INSERT INTO eventos
-            (
-                clase_id,
-                codigo,
-                tipo,
-                hora
-            )
+            (clase_id,codigo,tipo,hora)
             VALUES (?, ?, ?, ?)
             """,
-            (
-                clase_id,
-                reg["codigo"],
-                tipo,
-                hora.isoformat(
-                    timespec="seconds"
-                )
-            )
+            (clase_id,reg["codigo"],tipo,hora.isoformat(timespec="seconds"))
         )
 
     bd().commit()
 
 
-# ============================================================
 # MONITOREO
-# ============================================================
 
 def revisar_clase(clase_id):
     """
@@ -295,22 +244,14 @@ def revisar_clase(clase_id):
         eventos = []
 
         logica.revisar_tiempos(
-            reg,
-            ahora,
-            SEGUNDOS_SIN_SENAL,
-            eventos
+            reg,ahora,SEGUNDOS_SIN_SENAL,eventos
         )
 
         guardar_registro(
-            clase_id,
-            reg,
-            eventos
+            clase_id,reg,eventos
         )
 
-
-# ============================================================
 # INGRESO DEL ALUMNO
-# ============================================================
 
 @app.route("/", methods=["GET", "POST"])
 def ingreso():
@@ -361,9 +302,7 @@ def ingreso():
 
             eventos = []
 
-            # ------------------------------------------------
             # PRIMER INGRESO
-            # ------------------------------------------------
 
             if reg is None:
 
@@ -376,18 +315,12 @@ def ingreso():
                     clase["tolerancia_min"]
                 )
 
-            # ------------------------------------------------
             # VOLVIÓ A ENTRAR
-            # ------------------------------------------------
 
             else:
 
                 logica.revisar_tiempos(
-                    reg,
-                    ahora,
-                    SEGUNDOS_SIN_SENAL,
-                    eventos
-                )
+                    reg,ahora,SEGUNDOS_SIN_SENAL,eventos)
 
                 if (
                     reg["desconectado_desde"]
@@ -395,9 +328,7 @@ def ingreso():
                 ):
 
                     logica.registrar_reingreso(
-                        reg,
-                        ahora,
-                        eventos
+                        reg,ahora,eventos
                     )
 
                 if not reg["retiro"]:
@@ -410,8 +341,7 @@ def ingreso():
 
             guardar_registro(
                 clase["id"],
-                reg,
-                eventos
+                reg,eventos
             )
 
             session["codigo"] = codigo
@@ -427,9 +357,7 @@ def ingreso():
     )
 
 
-# ============================================================
 # AULA DEL ALUMNO
-# ============================================================
 
 @app.route("/aula")
 def aula():
@@ -470,9 +398,7 @@ def aula():
     )
 
 
-# ============================================================
 # SEÑAL DEL NAVEGADOR
-# ============================================================
 
 @app.route("/api/senal", methods=["POST"])
 def senal():
@@ -509,20 +435,13 @@ def senal():
         True
     )
 
-    # --------------------------------------------------------
     # Comprobar si había una desconexión
-    # --------------------------------------------------------
 
     logica.revisar_tiempos(
-        reg,
-        ahora,
-        SEGUNDOS_SIN_SENAL,
-        eventos
+        reg,ahora,SEGUNDOS_SIN_SENAL,eventos
     )
 
-    # --------------------------------------------------------
     # PÁGINA VISIBLE
-    # --------------------------------------------------------
 
     if visible:
 
@@ -532,9 +451,7 @@ def senal():
         ):
 
             logica.registrar_reingreso(
-                reg,
-                ahora,
-                eventos
+                reg,ahora,eventos
             )
 
         if not reg["retiro"]:
@@ -545,9 +462,7 @@ def senal():
                 )
             )
 
-    # --------------------------------------------------------
     # PÁGINA NO VISIBLE
-    # --------------------------------------------------------
 
     else:
 
@@ -578,9 +493,7 @@ def senal():
     )
 
 
-# ============================================================
 # PANEL DOCENTE
-# ============================================================
 
 @app.route("/docente", methods=["GET", "POST"])
 def docente():
@@ -633,15 +546,11 @@ def docente():
 
     return render_template(
         "docente.html",
-        clase=clase,
-        filas=filas,
-        ultima=ultima
+        clase=clase,filas=filas,ultima=ultima
     )
 
 
-# ============================================================
 # INICIAR CLASE
-# ============================================================
 
 @app.post("/docente/iniciar")
 def iniciar_clase():
@@ -691,9 +600,7 @@ def iniciar_clase():
     )
 
 
-# ============================================================
 # FINALIZAR CLASE
-# ============================================================
 
 @app.post("/docente/finalizar")
 def finalizar_clase():
@@ -741,9 +648,7 @@ def finalizar_clase():
     )
 
 
-# ============================================================
 # GENERAR FILAS DEL REPORTE
-# ============================================================
 
 def filas_reporte(clase_id):
 
@@ -778,9 +683,7 @@ def filas_reporte(clase_id):
             codigo
         )
 
-        # ====================================================
         # NUNCA INGRESÓ
-        # ====================================================
 
         if reg is None:
 
@@ -800,9 +703,7 @@ def filas_reporte(clase_id):
 
             continue
 
-        # ====================================================
         # SÍ INGRESÓ
-        # ====================================================
 
         eventos = bd().execute(
             """
@@ -862,9 +763,7 @@ def filas_reporte(clase_id):
     return filas
 
 
-# ============================================================
 # REPORTE HTML
-# ============================================================
 
 @app.route("/reporte/<int:clase_id>")
 def reporte(clase_id):
@@ -898,12 +797,7 @@ def reporte(clase_id):
         clase_id
     )
 
-    estados = (
-        logica.PRESENTE,
-        logica.TARDANZA,
-        logica.FALTA,
-        logica.RETIRO_FALTA
-    )
+    estados = (logica.PRESENTE,logica.TARDANZA,logica.FALTA,logica.RETIRO_FALTA)
 
     resumen = {
         estado: sum(
@@ -922,9 +816,7 @@ def reporte(clase_id):
     )
 
 
-# ============================================================
 # EXPORTAR A EXCEL
-# ============================================================
 
 @app.route("/reporte/<int:clase_id>/excel")
 def reporte_excel(clase_id):
@@ -970,9 +862,7 @@ def reporte_excel(clase_id):
     hoja = libro.active
     hoja.title = "Asistencia"
 
-    # --------------------------------------------------------
     # ENCABEZADO
-    # --------------------------------------------------------
 
     hoja.append(
         [
@@ -1004,9 +894,7 @@ def reporte_excel(clase_id):
         ]
     )
 
-    # --------------------------------------------------------
     # FORMATO DEL ENCABEZADO
-    # --------------------------------------------------------
 
     for celda in hoja[4]:
 
@@ -1020,9 +908,7 @@ def reporte_excel(clase_id):
             fgColor="1F3A5F"
         )
 
-    # --------------------------------------------------------
     # DATOS
-    # --------------------------------------------------------
 
     for f in filas:
 
@@ -1053,25 +939,14 @@ def reporte_excel(clase_id):
             )
         )
 
-    # --------------------------------------------------------
     # ANCHOS
-    # --------------------------------------------------------
 
     hoja["A1"].font = Font(
         bold=True,
         size=14
     )
 
-    anchos = (
-        12,
-        32,
-        15,
-        17,
-        14,
-        24,
-        24,
-        16
-    )
+    anchos = (12,32,15,17,14,24,24,16)
 
     for col, ancho in zip(
         "ABCDEFGH",
@@ -1082,9 +957,7 @@ def reporte_excel(clase_id):
             col
         ].width = ancho
 
-    # --------------------------------------------------------
     # CREAR ARCHIVO
-    # --------------------------------------------------------
 
     archivo = io.BytesIO()
 
@@ -1105,9 +978,7 @@ def reporte_excel(clase_id):
     )
 
 
-# ============================================================
 # SALIR
-# ============================================================
 
 @app.route("/salir")
 def salir():
@@ -1119,16 +990,13 @@ def salir():
     )
 
 
-# ============================================================
+
 # CREAR BASE DE DATOS
-# ============================================================
 
 crear_tablas()
 
 
-# ============================================================
 # EJECUTAR
-# ============================================================
 
 if __name__ == "__main__":
 
@@ -1187,9 +1055,7 @@ SEGUNDOS_SIN_SENAL = int(
 ZONA_HORARIA = ZoneInfo("America/Lima")
 
 
-# ============================================================
 # HORA
-# ============================================================
 
 def hora_peru():
     """Hora actual de Perú."""
@@ -1198,9 +1064,7 @@ def hora_peru():
     ).replace(tzinfo=None)
 
 
-# ============================================================
 # BASE DE DATOS
-# ============================================================
 
 def bd():
     """Obtiene una conexión SQLite para la petición actual."""
@@ -1268,9 +1132,7 @@ def crear_tablas():
         """
     )
 
-    # --------------------------------------------------------
     # Cargar estudiantes.csv
-    # --------------------------------------------------------
 
     if os.path.exists("estudiantes.csv"):
 
@@ -1315,9 +1177,7 @@ def crear_tablas():
     con.close()
 
 
-# ============================================================
 # CLASE
-# ============================================================
 
 def clase_activa():
     return bd().execute(
@@ -1331,9 +1191,7 @@ def clase_activa():
     ).fetchone()
 
 
-# ============================================================
 # REGISTROS
-# ============================================================
 
 def leer_registro(clase_id, codigo):
     """Busca el registro de un alumno."""
@@ -1345,10 +1203,7 @@ def leer_registro(clase_id, codigo):
         WHERE clase_id = ?
         AND codigo = ?
         """,
-        (
-            clase_id,
-            codigo
-        )
+        (clase_id,codigo)
     ).fetchone()
 
     return dict(fila) if fila else None
@@ -1414,9 +1269,7 @@ def guardar_registro(
     bd().commit()
 
 
-# ============================================================
 # MONITOREO
-# ============================================================
 
 def revisar_clase(clase_id):
     """
@@ -1455,9 +1308,7 @@ def revisar_clase(clase_id):
         )
 
 
-# ============================================================
 # INGRESO DEL ALUMNO
-# ============================================================
 
 @app.route("/", methods=["GET", "POST"])
 def ingreso():
@@ -1508,9 +1359,7 @@ def ingreso():
 
             eventos = []
 
-            # ------------------------------------------------
             # PRIMER INGRESO
-            # ------------------------------------------------
 
             if reg is None:
 
@@ -1523,29 +1372,18 @@ def ingreso():
                     clase["tolerancia_min"]
                 )
 
-            # ------------------------------------------------
             # VOLVIÓ A ENTRAR
-            # ------------------------------------------------
 
             else:
 
-                logica.revisar_tiempos(
-                    reg,
-                    ahora,
-                    SEGUNDOS_SIN_SENAL,
-                    eventos
-                )
+                logica.revisar_tiempos(reg,ahora,SEGUNDOS_SIN_SENAL,eventos)
 
                 if (
                     reg["desconectado_desde"]
                     and not reg["retiro"]
                 ):
 
-                    logica.registrar_reingreso(
-                        reg,
-                        ahora,
-                        eventos
-                    )
+                    logica.registrar_reingreso(reg,ahora,eventos)
 
                 if not reg["retiro"]:
 
@@ -1574,9 +1412,7 @@ def ingreso():
     )
 
 
-# ============================================================
 # AULA DEL ALUMNO
-# ============================================================
 
 @app.route("/aula")
 def aula():
@@ -1617,9 +1453,7 @@ def aula():
     )
 
 
-# ============================================================
 # SEÑAL DEL NAVEGADOR
-# ============================================================
 
 @app.route("/api/senal", methods=["POST"])
 def senal():
@@ -1656,20 +1490,11 @@ def senal():
         True
     )
 
-    # --------------------------------------------------------
     # Comprobar si había una desconexión
-    # --------------------------------------------------------
 
-    logica.revisar_tiempos(
-        reg,
-        ahora,
-        SEGUNDOS_SIN_SENAL,
-        eventos
-    )
+    logica.revisar_tiempos(reg,ahora,SEGUNDOS_SIN_SENAL,eventos)
 
-    # --------------------------------------------------------
     # PÁGINA VISIBLE
-    # --------------------------------------------------------
 
     if visible:
 
@@ -1692,17 +1517,11 @@ def senal():
                 )
             )
 
-    # --------------------------------------------------------
     # PÁGINA NO VISIBLE
-    # --------------------------------------------------------
 
     else:
 
-        logica.registrar_salida(
-            reg,
-            ahora,
-            eventos
-        )
+        logica.registrar_salida(reg,ahora,eventos)
 
         if not reg["retiro"]:
 
@@ -1725,9 +1544,7 @@ def senal():
     )
 
 
-# ============================================================
 # PANEL DOCENTE
-# ============================================================
 
 @app.route("/docente", methods=["GET", "POST"])
 def docente():
@@ -1778,17 +1595,10 @@ def docente():
         """
     ).fetchone()
 
-    return render_template(
-        "docente.html",
-        clase=clase,
-        filas=filas,
-        ultima=ultima
-    )
+    return render_template("docente.html",clase=clase,filas=filas,ultima=ultima)
 
 
-# ============================================================
 # INICIAR CLASE
-# ============================================================
 
 @app.post("/docente/iniciar")
 def iniciar_clase():
@@ -1838,9 +1648,7 @@ def iniciar_clase():
     )
 
 
-# ============================================================
 # FINALIZAR CLASE
-# ============================================================
 
 @app.post("/docente/finalizar")
 def finalizar_clase():
@@ -1888,9 +1696,7 @@ def finalizar_clase():
     )
 
 
-# ============================================================
 # GENERAR FILAS DEL REPORTE
-# ============================================================
 
 def filas_reporte(clase_id):
 
@@ -1925,9 +1731,7 @@ def filas_reporte(clase_id):
             codigo
         )
 
-        # ====================================================
         # NUNCA INGRESÓ
-        # ====================================================
 
         if reg is None:
 
@@ -1947,18 +1751,11 @@ def filas_reporte(clase_id):
 
             continue
 
-        # ====================================================
         # SÍ INGRESÓ
-        # ====================================================
 
         eventos = bd().execute(
-            """
-            SELECT tipo, hora
-            FROM eventos
-            WHERE clase_id = ?
-            AND codigo = ?
-            ORDER BY hora
-            """,
+            """SELECT tipo, hora FROM eventos
+            WHERE clase_id = ? AND codigo = ? ORDER BY hora""",
             (
                 clase_id,
                 codigo
@@ -1999,19 +1796,14 @@ def filas_reporte(clase_id):
                     reg["desconexiones"]
                     or 0
                 ),
-                "salidas": salidas,
-                "reingresos": reingresos,
-                "conectado": conectado,
-                "estado_final": logica.estado_final(reg)
+                "salidas": salidas,"reingresos": reingresos,"conectado": conectado,"estado_final": logica.estado_final(reg)
             }
         )
 
     return filas
 
 
-# ============================================================
 # REPORTE HTML
-# ============================================================
 
 @app.route("/reporte/<int:clase_id>")
 def reporte(clase_id):
@@ -2023,11 +1815,8 @@ def reporte(clase_id):
         )
 
     clase = bd().execute(
-        """
-        SELECT *
-        FROM clases
-        WHERE id = ?
-        """,
+        """SELECT * FROM clases
+        WHERE id = ?""",
         (clase_id,)
     ).fetchone()
 
@@ -2045,12 +1834,7 @@ def reporte(clase_id):
         clase_id
     )
 
-    estados = (
-        logica.PRESENTE,
-        logica.TARDANZA,
-        logica.FALTA,
-        logica.RETIRO_FALTA
-    )
+    estados = (logica.PRESENTE,logica.TARDANZA,logica.FALTA,logica.RETIRO_FALTA)
 
     resumen = {
         estado: sum(
@@ -2069,9 +1853,7 @@ def reporte(clase_id):
     )
 
 
-# ============================================================
 # EXPORTAR A EXCEL
-# ============================================================
 
 @app.route("/reporte/<int:clase_id>/excel")
 def reporte_excel(clase_id):
@@ -2083,11 +1865,7 @@ def reporte_excel(clase_id):
         )
 
     clase = bd().execute(
-        """
-        SELECT *
-        FROM clases
-        WHERE id = ?
-        """,
+        """SELECT * FROM clases WHERE id = ?""",
         (clase_id,)
     ).fetchone()
 
@@ -2105,21 +1883,14 @@ def reporte_excel(clase_id):
         clase_id
     )
 
-    colores = {
-        logica.PRESENTE: "C8E6D4",
-        logica.TARDANZA: "F6E2B3",
-        logica.FALTA: "F2C4C0",
-        logica.RETIRO_FALTA: "DCCDEE"
-    }
+    colores = {logica.PRESENTE: "C8E6D4",logica.TARDANZA: "F6E2B3",logica.FALTA: "F2C4C0",logica.RETIRO_FALTA: "DCCDEE"}
 
     libro = Workbook()
 
     hoja = libro.active
     hoja.title = "Asistencia"
 
-    # --------------------------------------------------------
     # ENCABEZADO
-    # --------------------------------------------------------
 
     hoja.append(
         [
@@ -2151,9 +1922,7 @@ def reporte_excel(clase_id):
         ]
     )
 
-    # --------------------------------------------------------
     # FORMATO DEL ENCABEZADO
-    # --------------------------------------------------------
 
     for celda in hoja[4]:
 
@@ -2167,9 +1936,7 @@ def reporte_excel(clase_id):
             fgColor="1F3A5F"
         )
 
-    # --------------------------------------------------------
     # DATOS
-    # --------------------------------------------------------
 
     for f in filas:
 
@@ -2200,38 +1967,19 @@ def reporte_excel(clase_id):
             )
         )
 
-    # --------------------------------------------------------
     # ANCHOS
-    # --------------------------------------------------------
 
-    hoja["A1"].font = Font(
-        bold=True,
-        size=14
-    )
+    hoja["A1"].font = Font(bold=True,size=14)
 
-    anchos = (
-        12,
-        32,
-        15,
-        17,
-        14,
-        24,
-        24,
-        16
-    )
+    anchos = (12,32,15,17,14,24,24,16)
 
-    for col, ancho in zip(
-        "ABCDEFGH",
-        anchos
-    ):
+    for col, ancho in zip("ABCDEFGH",anchos):
 
         hoja.column_dimensions[
             col
         ].width = ancho
 
-    # --------------------------------------------------------
     # CREAR ARCHIVO
-    # --------------------------------------------------------
 
     archivo = io.BytesIO()
 
@@ -2252,9 +2000,7 @@ def reporte_excel(clase_id):
     )
 
 
-# ============================================================
 # SALIR
-# ============================================================
 
 @app.route("/salir")
 def salir():
@@ -2266,19 +2012,13 @@ def salir():
     )
 
 
-# ============================================================
 # CREAR BASE DE DATOS
-# ============================================================
 
 crear_tablas()
 
 
-# ============================================================
 # EJECUTAR
-# ============================================================
 
 if __name__ == "__main__":
 
-    app.run(
-        debug=True
-    )
+    app.run(host="0.0.0.0",port=5000,debug=True)
