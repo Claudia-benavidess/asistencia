@@ -17,7 +17,7 @@
 {% else %}
 <section>
   <h2>{{ clase.curso }} en curso</h2>
-  <p class="ayuda">Iniciada a las {{ clase.hora_inicio[11:] }}. La lista se actualiza cada 10 segundos.</p>
+  <p class="ayuda">Iniciada a las {{ clase.hora_inicio | hora12 }}. La lista se actualiza cada 10 segundos.</p>
   <div class="tabla hoja">
     <table>
       <thead><tr><th>Estudiante</th><th>Ingreso</th><th>Desconexiones</th><th>Ahora</th><th>Estado</th></tr></thead>
