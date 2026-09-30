@@ -31,6 +31,14 @@ def hora_peru():
 def texto(hora):
     return hora.isoformat(timespec="seconds")
 
+def hora_12(valor):
+  if not valor:
+    return ""
+  hora = datetime.fromisoformat(valor)
+  return hora.strftime("%I:%M %p").lstrip("0")
+
+app.add_template_filter(hora_12, "hora12")
+
 
 # BASE DE DATOS (SQLite local o MySQL en AWS RDS, ver basedatos.py)
 
@@ -330,10 +338,15 @@ def filas_reporte(clase_id):
 
         if reg is None:
             filas.append({
-                "codigo": codigo, "nombre": est["nombre"],
-                "hora_ingreso": "", "estado_ingreso": "", "desconexiones": 0,
-                "salidas": "", "reingresos": "", "conectado": False,
-                "estado_final": logica.FALTA,
+                "codigo": codigo, 
+                "nombre": est["nombre"],
+                "hora_ingreso": hora_12(reg["hora_ingreso"]),
+                "estado_ingreso": reg["estado_ingreso"] or "",
+                "desconexiones": reg["desconexiones"] or 0,
+                "salidas": ", ".join(hora_12(e["hora"]) for e in eventos if e["tipo"] == "salida"),
+                "reingresos": ", ".join(hora_12(e["hora"]) for e in eventos if e["tipo"] == "reingreso"),
+                "conectado": not reg["desconectado_desde"] and not reg["retiro"],
+                "estado_final": logica.estado_final(reg),
             })
             continue
 
@@ -405,8 +418,8 @@ def reporte_excel(clase_id):
     hoja.append([f"Reporte de asistencia - {clase['curso']}"])
     hoja.append([
         f"Fecha: {clase['hora_inicio'][:10]}  "
-        f"Inicio: {clase['hora_inicio'][11:]}  "
-        f"Fin: {(clase['hora_fin'] or '')[11:]}"
+        f"Inicio: {hora_12(clase['hora_inicio'])}  "
+        f"Fin: {hora_12(clase['hora_fin'])}"
     ])
     hoja.append([])
     hoja.append(["Código", "Estudiante", "Hora de ingreso", "Estado de ingreso",
