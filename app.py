@@ -29,14 +29,19 @@ def hora_peru():
 
 
 def texto(hora):
+    """Formato con el que se GUARDA la hora en la base (no cambiar)."""
     return hora.isoformat(timespec="seconds")
 
-def hora_12(valor):
-  if not valor:
-    return ""
-  hora = datetime.fromisoformat(valor)
-  return hora.strftime("%I:%M %p").lstrip("0")
 
+def hora_12(valor):
+    """Formato con el que se MUESTRA la hora: '2026-09-30T16:25:13' -> '4:25 PM'."""
+    if not valor:
+        return ""
+    hora = datetime.fromisoformat(valor)
+    return hora.strftime("%I:%M %p").lstrip("0")
+
+
+# Para usarla en los HTML:  {{ algo | hora12 }}
 app.add_template_filter(hora_12, "hora12")
 
 
@@ -337,28 +342,25 @@ def filas_reporte(clase_id):
         reg = registros.get(codigo)
 
         if reg is None:
+            # NUNCA INGRESÓ
             filas.append({
-                "codigo": codigo, 
-                "nombre": est["nombre"],
-                "hora_ingreso": hora_12(reg["hora_ingreso"]),
-                "estado_ingreso": reg["estado_ingreso"] or "",
-                "desconexiones": reg["desconexiones"] or 0,
-                "salidas": ", ".join(hora_12(e["hora"]) for e in eventos if e["tipo"] == "salida"),
-                "reingresos": ", ".join(hora_12(e["hora"]) for e in eventos if e["tipo"] == "reingreso"),
-                "conectado": not reg["desconectado_desde"] and not reg["retiro"],
-                "estado_final": logica.estado_final(reg),
+                "codigo": codigo, "nombre": est["nombre"],
+                "hora_ingreso": "", "estado_ingreso": "", "desconexiones": 0,
+                "salidas": "", "reingresos": "", "conectado": False,
+                "estado_final": logica.FALTA,
             })
             continue
 
+        # SÍ INGRESÓ (las horas se muestran en formato 12 h, sin segundos)
         eventos = eventos_por_alumno.get(codigo, [])
         filas.append({
             "codigo": codigo,
             "nombre": est["nombre"],
-            "hora_ingreso": (reg["hora_ingreso"] or "")[11:],
+            "hora_ingreso": hora_12(reg["hora_ingreso"]),
             "estado_ingreso": reg["estado_ingreso"] or "",
             "desconexiones": reg["desconexiones"] or 0,
-            "salidas": ", ".join(e["hora"][11:] for e in eventos if e["tipo"] == "salida"),
-            "reingresos": ", ".join(e["hora"][11:] for e in eventos if e["tipo"] == "reingreso"),
+            "salidas": ", ".join(hora_12(e["hora"]) for e in eventos if e["tipo"] == "salida"),
+            "reingresos": ", ".join(hora_12(e["hora"]) for e in eventos if e["tipo"] == "reingreso"),
             "conectado": not reg["desconectado_desde"] and not reg["retiro"],
             "estado_final": logica.estado_final(reg),
         })
@@ -419,7 +421,7 @@ def reporte_excel(clase_id):
     hoja.append([
         f"Fecha: {clase['hora_inicio'][:10]}  "
         f"Inicio: {hora_12(clase['hora_inicio'])}  "
-        f"Fin: {hora_12(clase['hora_fin'])}"
+        f"Fin: {hora_12(clase['hora_fin']) or 'en curso'}"
     ])
     hoja.append([])
     hoja.append(["Código", "Estudiante", "Hora de ingreso", "Estado de ingreso",
