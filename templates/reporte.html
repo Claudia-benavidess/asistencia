@@ -3,7 +3,7 @@
 {% block enlaces %}<a href="{{ url_for('docente') }}">Volver al panel</a>{% endblock %}
 {% block contenido %}
 <h2>Reporte de asistencia</h2>
-<p class="ayuda">{{ clase.curso }}, {{ clase.hora_inicio[:10] }}, de {{ clase.hora_inicio[11:] }} a {{ (clase.hora_fin or "en curso")[11:] }}</p>
+<p class="ayuda">{{ clase.curso }}, {{ clase.hora_inicio[:10] }}, de {{ clase.hora_inicio | hora12 }} a {{ clase.hora_fin | hora12 if clase.hora_fin else "en curso" }}</p>
 <div class="resumen">
   {% for estado, total in resumen.items() %}<div class="{{ estado }}"><strong>{{ total }}</strong>{{ estado }}</div>{% endfor %}
 </div>
