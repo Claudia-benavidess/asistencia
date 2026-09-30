@@ -15,6 +15,5 @@
   </dl>
   <div class="conexion" aria-live="polite"><span id="punto" class="punto"></span><span id="texto">Conectado a la clase</span></div>
 </section>
-<script>const DESCONEXIONES_INICIALES = {{ reg.desconexiones }}; const ESTADO_INICIAL = {{ estado|tojson }};</script>
-<script src="{{ url_for('static', filename='aula.py') }}"></script>
+<script type="text/python" src="{{ url_for('static', filename='aula.py') }}"></script>
 {% endblock %}
