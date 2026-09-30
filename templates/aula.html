@@ -10,7 +10,7 @@
   <dl class="datos">
     <dt>Código</dt><dd>{{ estudiante.codigo }}</dd>
     <dt>Curso</dt><dd>{{ clase.curso }}</dd>
-    <dt>Hora de ingreso</dt><dd>{{ reg.hora_ingreso[11:] }}</dd>
+    <dt>Hora de ingreso</dt><dd>{{ reg.hora_ingreso | hora12 }}</dd>
     <dt>Desconexiones</dt><dd id="desconexiones">{{ reg.desconexiones }} de 3 permitidas</dd>
   </dl>
   <div class="conexion" aria-live="polite"><span id="punto" class="punto"></span><span id="texto">Conectado a la clase</span></div>
