@@ -20,12 +20,6 @@ pip install -r requirements.txt
 python app.py
 ```
 
-### 3. Acceder al Sistema
-
-- Estudiantes: http://127.0.0.1:5000
-- Docente: http://127.0.0.1:5000/docente (clave de prueba: `docente123`)
-- Pruebas de las reglas: `pytest`
-
 La lista de estudiantes está en `estudiantes.csv` (codigo,nombre).
 
 ## Archivos
@@ -33,7 +27,7 @@ La lista de estudiantes está en `estudiantes.csv` (codigo,nombre).
 |---|---|---|
 | `logica.py` | Reglas: PRESENTE/TARDANZA, desconexiones, 10 min, 4ta salida, estado final | 2, 3, 4, 5 |
 | `app.py` | Páginas web, base de datos SQLite, reporte y Excel | 1, 6 |
-| `static/aula.js` | Detecta salida de la ventana y pérdida de conexión (señal cada 5 s) | 3, 4 |
+| `static/aula.py` | Detecta salida de la ventana y pérdida de conexión (señal cada 5 s) | 3, 4 |
 | `templates/` | Pantallas: ingreso, aula, panel docente, reporte | 1, 6 |
 | `test_logica.py` | Pruebas automáticas de cada regla | todas |
 
