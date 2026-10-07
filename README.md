@@ -1,4 +1,4 @@
-# Sistema de asistencia para clases virtuales (UPC)
+# Sistema Web de Control de Asistencia Virtual para la UPC
 
 Mini aula virtual centrada en el control de asistencia. El docente inicia la clase, el estudiante
 registra su ingreso con su código y la página controla su permanencia en la clase.
