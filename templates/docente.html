@@ -4,12 +4,10 @@
 {% if not clase %}
 <section class="hoja estrecho">
   <h2>Iniciar una clase</h2>
-  <p class="ayuda">Al iniciar, los estudiantes podrán registrar su ingreso con su código.</p>
+  <p class="ayuda">Al iniciar, los estudiantes podrán registrar su ingreso con su código. La tolerancia para marcar PRESENTE es de 10 minutos.</p>
   <form method="post" action="{{ url_for('iniciar_clase') }}">
     <label for="curso">Curso</label>
     <input id="curso" name="curso" placeholder="Fundamentos de programación">
-    <label for="tolerancia">Minutos de tolerancia para marcar PRESENTE</label>
-    <input id="tolerancia" name="tolerancia" type="number" min="0" value="10">
     <button type="submit">Iniciar clase</button>
   </form>
   {% if ultima %}<p><a class="boton secundario" href="{{ url_for('reporte', clase_id=ultima.id) }}">Ver el último reporte</a></p>{% endif %}
