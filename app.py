@@ -173,7 +173,7 @@ def ingreso():
                 reg = logica.nuevo_registro(
                     codigo, ahora,
                     logica.a_fecha(clase["hora_inicio"]),
-                    clase["tolerancia_min"],
+                    logica.TOLERANCIA_MIN,
                 )
             else:
                 # VOLVIÓ A ENTRAR
@@ -285,10 +285,9 @@ def iniciar_clase():
 
     if not clase_activa():
         curso = request.form.get("curso") or "Clase virtual"
-        tolerancia = int(request.form.get("tolerancia") or 10)
         bd().ejecutar(
             "INSERT INTO clases (curso, hora_inicio, tolerancia_min, activa) VALUES (?, ?, ?, 1)",
-            (curso, texto(hora_peru()), tolerancia),
+            (curso, texto(hora_peru()), logica.TOLERANCIA_MIN),
         )
         bd().confirmar()
 
