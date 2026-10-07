@@ -6,9 +6,11 @@
 body{margin:0;background:var(--fondo);color:var(--tinta);
   font-family:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:17px;line-height:1.5}
 main{max-width:980px;margin:0 auto;padding:32px 20px 64px}
-header.barra{display:flex;justify-content:space-between;align-items:baseline;gap:16px;
+header.barra{display:flex;justify-content:space-between;align-items:center;gap:16px;
   border-bottom:2px solid var(--tinta);padding-bottom:10px;margin-bottom:28px}
 header.barra h1{font-size:1.4rem;margin:0}
+header.barra a.marca{display:flex;align-items:center;gap:12px;color:var(--tinta);text-decoration:none}
+header.barra a.marca img{height:44px;width:auto;display:block}
 header.barra a{color:var(--suave)}
 h2{font-size:1.9rem;line-height:1.2;margin:0 0 8px}
 p.ayuda{color:var(--suave);max-width:60ch;margin-top:0}
