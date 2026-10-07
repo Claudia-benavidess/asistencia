@@ -12,11 +12,14 @@ registra su ingreso con su código y la página controla su permanencia en la cl
 4. **Aviso:** serás redirigido a una página virtual de **Visual Studio Code**.
 5. Espera a que el entorno termine de cargar completamente.
 
-### 2. Instalar las dependencias
+### 2. Instalar las dependencias y ejecutar
 
-Una vez que el entorno haya cargado, abre la **Terminal** y ejecuta primero:
+Una vez que el entorno haya cargado, abre la **Terminal** y ejecuta primero este comando para instalar las dependencias:
 ```bash
 pip install -r requirements.txt
+```
+Luego inicia el servidor:
+```bash
 python app.py
 ```
 
@@ -26,16 +29,37 @@ La lista de estudiantes está en `estudiantes.csv` (codigo,nombre).
 | Archivo | Qué hace | Historia de usuario |
 |---|---|---|
 | `logica.py` | Reglas: PRESENTE/TARDANZA, desconexiones, 10 min, 4ta salida, estado final | 2, 3, 4, 5 |
-| `app.py` | Páginas web, base de datos SQLite, reporte y Excel | 1, 6 |
-| `static/aula.py` | Detecta salida de la ventana y pérdida de conexión (señal cada 5 s) | 3, 4 |
+| `app.py` | Servidor Flask: páginas web, señales del navegador, reporte y Excel | 1, 6 |
+| `basedatos.py` | Conexión a la base de datos: SQLite local o MySQL en AWS RDS | 1, 6 |
+| `static/aula.py` | Corre en el navegador del estudiante (Brython). Detecta salida de la ventana y pérdida de conexión (señal cada 5 s) | 3, 4 |
+| `static/docente.py` | Corre en el navegador del docente: confirma al finalizar la clase y recarga la lista cada 10 s | 6 |
+| `static/estilos.css` | Estilos de las pantallas | - |
+| `static/logo-upc.png` | Logo de la UPC que se muestra en la cabecera | - |
 | `templates/` | Pantallas: ingreso, aula, panel docente, reporte | 1, 6 |
+| `estudiantes.csv` | Lista de estudiantes (código y nombre) | 1 |
 | `test_logica.py` | Pruebas automáticas de cada regla | todas |
+
+## Reglas de asistencia
+- **PRESENTE:** ingresa hasta 10 minutos después del inicio de la clase.
+- **TARDANZA:** ingresa pasados los 10 minutos.
+- **FALTA:** nunca ingresó a la clase.
+- **RETIRO-FALTA:** vuelve después de más de 10 minutos fuera, o llega a la 4ta desconexión.
+
+La tolerancia de 10 minutos es fija. Si se necesita cambiarla, se modifica `TOLERANCIA_MIN`
+en `logica.py` (no se puede cambiar desde el panel del docente).
 
 ## Cómo detecta las desconexiones
 - **Salida de ventana**: el navegador dispara `visibilitychange` al cambiar de pestaña o minimizar.
+- **Cierre de pestaña**: se envía una última señal con `sendBeacon` en el evento `pagehide`.
 - **Pérdida de conexión**: la página envía una señal cada 5 s; si el servidor pasa 15 s sin
   recibirla, registra la desconexión desde la última señal.
 - Si vuelve en 10 minutos o menos conserva su estado; si no, o si es la 4ta desconexión, RETIRO-FALTA.
 
 ## Configuración (variables de entorno)
-`CLAVE_DOCENTE`, `SECRET_KEY`, `BD_ASISTENCIA` (ruta de la base de datos), `SEGUNDOS_SIN_SENAL`.
+| Variable | Para qué sirve |
+|---|---|
+| `CLAVE_DOCENTE` | Clave del panel docente (por defecto `docente123`) |
+| `SECRET_KEY` | Clave para firmar las sesiones |
+| `SEGUNDOS_SIN_SENAL` | Segundos sin señal para considerar una desconexión (por defecto 15) |
+| `BD_ASISTENCIA` | Ruta de la base SQLite local (por defecto `asistencia.db`) |
+| `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` | Si existe `DB_HOST`, se usa MySQL en AWS RDS en lugar de SQLite |
