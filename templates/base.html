@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block titulo %}Asistencia{% endblock %}</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo-upc.png') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
@@ -14,7 +15,10 @@
 <body>
 <main>
   <header class="barra">
-    <h1>Asistencia de clase virtual</h1>
+    <a class="marca" href="/">
+      <img src="{{ url_for('static', filename='logo-upc.png') }}" alt="Logo UPC" width="44" height="44">
+      <h1>Asistencia de clase virtual</h1>
+    </a>
     {% block enlaces %}{% endblock %}
   </header>
   {% block contenido %}{% endblock %}
