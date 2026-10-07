@@ -7,6 +7,7 @@ RETIRO_FALTA = "RETIRO-FALTA"
 
 MAX_DESCONEXIONES = 4          # la 4ta desconexión es RETIRO-FALTA
 MINUTOS_REINGRESO = 10         # tiempo máximo para volver
+TOLERANCIA_MIN = 10            # tolerancia fija para marcar PRESENTE (no es configurable)
 
 
 def a_fecha(texto):
